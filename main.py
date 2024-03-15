@@ -65,6 +65,28 @@ def generate_data():
 app.cli.add_command(custom_cli)
         
 # this runs the application on the development server
+import pandas as pd
+
+# Read the CSV file into a DataFrame
+df = pd.read_csv('student_admission_dataset.csv')
+
+# Input your stats
+your_gpa = float(input("Enter your GPA: "))
+your_sat_score = int(input("Enter your SAT score: "))
+your_extracurricular_activities = int(input("Enter your number of extracurricular activities: "))
+
+# Filter the DataFrame based on your input stats
+filtered_df = df[(df['GPA'] == your_gpa) & 
+                 (df['SAT_Score'] == your_sat_score) & 
+                 (df['Extracurricular_Activities'] == your_extracurricular_activities)]
+
+# Check admission status for your filtered stats
+if filtered_df.empty:
+    print("Sorry, your application is rejected.")
+else:
+    admission_status = filtered_df['Admission_Status'].iloc[0]
+    print(f"Your admission status is: {admission_status}")
+
 if __name__ == "__main__":
     # change name for testing
     app.run(debug=True, host="0.0.0.0", port="8086")
