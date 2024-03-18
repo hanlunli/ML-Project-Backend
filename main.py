@@ -76,10 +76,10 @@ def house():
     regressor.fit(X, y)
 
     # Accepting user input for house features
-    area = body.get('area')
-    bedrooms = body.get('bedrooms')
-    bathrooms = body.get('bathrooms')
-    stories = body.get('stories')
+    area = int(body.get('area'))
+    bedrooms = int(body.get('bedrooms'))
+    bathrooms = int(body.get('bathrooms'))
+    stories = int(body.get('stories'))
     mainroad = body.get('mainroad')
     guestroom = body.get('guestroom')
     basement = body.get('basement')
