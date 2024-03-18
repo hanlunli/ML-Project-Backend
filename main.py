@@ -63,27 +63,8 @@ def generate_data():
 
 # Register the custom command group with the Flask application
 app.cli.add_command(custom_cli)
-
-# Read the CSV file into a DataFrame
-import pandas as pd
-
-# Read the CSV file into a DataFrame
-df = pd.read_csv('funny.csv')
-
-# Input your stats
-your_gpa = float(input("Enter your GPA: "))
-your_sat_score = int(input("Enter your SAT score: "))
-your_extracurricular_activities = int(input("Enter your number of extracurricular activities: "))
-
-# Calculate average admission rate for each category
-accepted_rate = df[df['Admission_Status'] == 'Accepted'].shape[0] / df.shape[0]
-rejected_rate = df[df['Admission_Status'] == 'Rejected'].shape[0] / df.shape[0]
-waitlisted_rate = df[df['Admission_Status'] == 'Waitlisted'].shape[0] / df.shape[0]
-
-# Determine admission status based on averages
-if (your_gpa >= df['GPA'].mean()) and (your_sat_score >= df['SAT_Score'].mean()) and (your_extracurricular_activities >= df['Extracurricular_Activities'].mean()):
-    print("Congratulations! You are likely to get in.")
-elif (your_gpa < df['GPA'].mean() * 0.8) or (your_sat_score < df['SAT_Score'].mean() * 0.8) or (your_extracurricular_activities < df['Extracurricular_Activities'].mean() * 0.8):
-    print("Unfortunately, you are likely to be rejected.")
-else:
-    print("You are likely to be waitlisted.")
+        
+# this runs the application on the development server
+if __name__ == "__main__":
+    # change name for testing
+    app.run(debug=True, host="0.0.0.0", port="8086")
