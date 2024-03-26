@@ -1,6 +1,9 @@
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
 from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
 
 # Load data from CSV file
 df = pd.read_csv('Housing.csv')
@@ -21,9 +24,14 @@ df['furnishingstatus'] = labelencoder.fit_transform(df['furnishingstatus'])
 X = df.drop(columns=['price'])
 y = df['price']
 
-# Training the Random Forest Regressor model
-regressor = RandomForestRegressor(n_estimators=10, random_state=42)
-regressor.fit(X, y)
+# Splitting the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Creating a pipeline with standardization and SVR
+model = make_pipeline(StandardScaler(), SVR())
+
+# Training the SVR model
+model.fit(X_train, y_train)
 
 # Accepting user input for house features
 area = float(input("Enter area of the house: "))
@@ -55,5 +63,6 @@ if furnishingstatus == -1:
     print("Invalid furnishing status. Please enter 'furnished', 'semi-furnished', or 'unfurnished'.")
 else:
     # Predicting the price
-    predicted_price = regressor.predict([[area, bedrooms, bathrooms, stories, mainroad, guestroom, basement, hotwaterheating, airconditioning, parking, prefarea, furnishingstatus]])[0]
+    user_input = [[area, bedrooms, bathrooms, stories, mainroad, guestroom, basement, hotwaterheating, airconditioning, parking, prefarea, furnishingstatus]]
+    predicted_price = model.predict(user_input)[0]
     print("Predicted price of the house:", predicted_price)
