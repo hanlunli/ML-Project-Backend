@@ -14,12 +14,7 @@ api = Api(house_api)
 
 class HouseAPI:        
     class _CRUD(Resource):  # User API operation for Create, Read.  THe Update, Delete methods need to be implemeented
-        def get(self):
-            return jsonify('hi')
-        def post(self): # Create method
-            varlist = ['area', 'bedrooms', 'bathrooms', 'stories', 'mainroad', 'guestroom', 'basement', 'hotwaterheating',
-                    'airconditioning', 'parking', 'prefarea', 'furnishingstatus']
-            
+        def post(self): # Create method            
             data = request.get_json()
             house = House(data.get('area'), data.get('bedrooms'), data.get('bathrooms'), data.get('stories'), data.get('mainroad'), data.get('guestroom'),
                           data.get('basement'),data.get('hotwaterheating'),data.get('airconditioning'), data.get('parking'), data.get('prefarea'), data.get('furnishingstatus'))
