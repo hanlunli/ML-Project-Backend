@@ -1,26 +1,18 @@
-""" database dependencies to support sqliteDB examples """
 from random import randrange
 from datetime import date
-import os, base64
+import os
+import base64
 import json
-
 from flask import Blueprint, request, jsonify, current_app, Response
 from __init__ import app, db
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
-from projects.projects import app_projects # Blueprint directory import projects definition
+from projects.projects import app_projects  # Blueprint directory import projects definition
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import LabelEncoder
-
 
 ''' Tutorial: https://www.sqlalchemy.org/library.html#tutorials, try to get into Python shell and follow along '''
-
-
-import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import LabelEncoder
-
 
 df = pd.read_csv('Housing.csv')
 dataList = ['area', 'bedrooms', 'bathrooms', 'stories', 'mainroad', 'guestroom', 'basement', 'hotwaterheating',
@@ -31,10 +23,18 @@ y = df['price']
 regressor = RandomForestRegressor(n_estimators=10, random_state=42)
 regressor.fit(X, y)
 
-for i in dataList:
-    df[i] = labelencoder.fit_transform(df[i])
+def stringToInt(var):
+    if var == 'yes':
+        var = 1
+    elif var == 'no':
+        var = 0
+    else:
+        var = int(var)
+    return var
+
 class House():
-    def __init__(self, area, bedrooms, bathrooms, stories, parking, mainroad, guestroom, basement, hotwaterheating, airconditioning, prefarea, furnishingstatus):
+    def __init__(self, area, bedrooms, bathrooms, stories, parking, mainroad, guestroom, basement, hotwaterheating,
+                 airconditioning, prefarea, furnishingstatus):
         self._area = area
         self._bedrooms = bedrooms
         self._bathrooms = bathrooms
@@ -143,49 +143,38 @@ class House():
     @furnishingstatus.setter
     def furnishingstatus(self, value):
         self._furnishingstatus = value
-
+    
     def predict(self):
-        stringToInt(self._mainroad)
-        stringToInt(self._guestroom)
-        stringToInt(self._basement)
-        stringToInt(self._hotwaterheating)
-        stringToInt(self._airconditioning)
-        stringToInt(self._prefarea)
-        stringToInt(self._area)
-        stringToInt(self._bedrooms)
-        stringToInt(self._bathrooms)
-        stringToInt(self._stories)
-        stringToInt(self._parking)
+        # Ensure all features are properly converted
+        self._mainroad = stringToInt(self._mainroad)
+        self._guestroom = stringToInt(self._guestroom)
+        self._basement = stringToInt(self._basement)
+        self._hotwaterheating = stringToInt(self._hotwaterheating)
+        self._airconditioning = stringToInt(self._airconditioning)
+        self._prefarea = stringToInt(self._prefarea)
+        self._area = stringToInt(self._area)
+        self._bedrooms = stringToInt(self._bedrooms)
+        self._bathrooms = stringToInt(self._bathrooms)
+        self._stories = stringToInt(self._stories)
+        self._parking = stringToInt(self._parking)
 
         # Mapping furnishing status to numeric values
         furnishingstatus_map = {'furnished': 0, 'semi-furnished': 2, 'unfurnished': 2}
         self._furnishingstatus = furnishingstatus_map.get(self.furnishingstatus.lower(), -1)  # Default value if not found
 
-        varList.append(self._furnishingstatus)
-        print(varList)
         if self.furnishingstatus == -1:
             print("Invalid furnishing status. Please enter 'furnished', 'semi-furnished', or 'unfurnished'.")
         else:
-            # Reset regressor
-            regressor = RandomForestRegressor(n_estimators=10, random_state=42)
-            regressor.fit(X, y)
+            varList = [self._area, self._bedrooms, self._bathrooms, self._stories, self._parking, self._mainroad,
+                       self._guestroom, self._basement, self._hotwaterheating, self._airconditioning, self._prefarea,
+                       self._furnishingstatus]
+
+            # Ensure the same number of features as the model expects
+            varList = varList[:12]
 
             # Predicting the price
             predicted_price = regressor.predict([varList])[0]
             return predicted_price
-        
-varList = []
-def stringToInt(var):
-    if var == 'yes':
-        var = 1
-    elif var == 'no':
-        var = 0
-    else: 
-        var = int(var)
-    varList.append(var)
-    print(var)
 
 
 """Database Creation and Testing """
-
-            
