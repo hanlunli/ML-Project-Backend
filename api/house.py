@@ -17,8 +17,13 @@ class HouseAPI:
         def get(self):
             return jsonify('hi')
         def post(self): # Create method
-            print('wtf bro')
-            return jsonify(House.predict(request.get_json()))
+            varlist = ['area', 'bedrooms', 'bathrooms', 'stories', 'mainroad', 'guestroom', 'basement', 'hotwaterheating',
+                    'airconditioning', 'parking', 'prefarea', 'furnishingstatus']
+            
+            data = request.get_json()
+            house = House(data.get('area'), data.get('bedrooms'), data.get('bathrooms'), data.get('stories'), data.get('mainroad'), data.get('guestroom'),
+                          data.get('basement'),data.get('hotwaterheating'),data.get('airconditioning'), data.get('parking'), data.get('prefarea'), data.get('furnishingstatus'))
+            return house.predict()
 
             
     # building RESTapi endpoint
