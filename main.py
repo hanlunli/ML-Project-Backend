@@ -1,5 +1,5 @@
 import threading
-
+import csv
 # import "packages" from flask
 from flask import render_template,request  # import render_template from "public" flask libraries
 from flask.cli import AppGroup
@@ -54,61 +54,80 @@ def index():
 @app.route('/table/')  # connects /stub/ URL to stub() function
 def table():
     return render_template("table.html")
-# @app.route('/house/', methods=['POST'])
-# def house():
-#     df = pd.read_csv('Housing.csv')
-#     body = request.get_json()
-#     labelencoder = LabelEncoder()
-#     df['mainroad'] = labelencoder.fit_transform(df['mainroad'])
-#     df['guestroom'] = labelencoder.fit_transform(df['guestroom'])
-#     df['basement'] = labelencoder.fit_transform(df['basement'])
-#     df['hotwaterheating'] = labelencoder.fit_transform(df['hotwaterheating'])
-#     df['airconditioning'] = labelencoder.fit_transform(df['airconditioning'])
-#     df['prefarea'] = labelencoder.fit_transform(df['prefarea'])
-#     print(df.drop(columns=['price']))
-#     # Assuming 'furnishingstatus' is the target variable
-#     df['furnishingstatus'] = labelencoder.fit_transform(df['furnishingstatus'])
-#     print(df['furnishingstatus'], "after")
-#     # Splitting the dataset into the features and target variable
-#     X = df.drop(columns=['price'])
-#     y = df['price']
 
-#     # Training the Random Forest Regressor model
-#     regressor = RandomForestRegressor(n_estimators=10, random_state=42)
-#     regressor.fit(X, y)
+@app.route('/nba', methods=["GET"])
+def nba():
+    def csv_to_dict(csv_file):
+        result = {}
+        with open(csv_file, 'r') as file:
+            reader = csv.DictReader(file, delimiter=';')
+            for row in reader:
+                key = row.pop('Rk')
+                processed_row = {}
+                for k, v in row.items():
+                    try:
+                        processed_row[k] = float(v)
+                    except ValueError:
+                        processed_row[k] = v
+                result[key] = processed_row
+        return result
 
-#     # Accepting user input for house features
-#     area = int(body.get('area'))
-#     bedrooms = int(body.get('bedrooms'))
-#     bathrooms = int(body.get('bathrooms'))
-#     stories = int(body.get('stories'))
-#     mainroad = body.get('mainroad')
-#     guestroom = body.get('guestroom')
-#     basement = body.get('basement')
-#     hotwaterheating = body.get('hotwaterheating')
-#     airconditioning = body.get('airconditioning')
-#     parking = body.get('parking')
-#     prefarea = body.get('prefarea')
-#     furnishingstatus = body.get('furnishingstatus')
+    csv_file = 'nba.csv'
+    data = csv_to_dict(csv_file)
 
-#     # Mapping user inputs to numeric values
-#     mainroad = 1 if mainroad.lower() == 'yes' else 0
-#     guestroom = 1 if guestroom.lower() == 'yes' else 0
-#     basement = 1 if basement.lower() == 'yes' else 0
-#     hotwaterheating = 1 if hotwaterheating.lower() == 'yes' else 0
-#     airconditioning = 1 if airconditioning.lower() == 'yes' else 0
-#     prefarea = 1 if prefarea.lower() == 'yes' else 0
+    def sortfunc():
+        tempdict = []
+        tempdict.append([data["1"]["Player"],data["1"]['PTS']])
+        for i in range(2,len(data)):
+            current = [data[f"{i+1}"]["Player"],data[f"{i+1}"]["PTS"]]
+            spot = binary_spot_search(current, tempdict)
+            tempdict.insert(spot, current)
+        end(tempdict)
 
-#     # Mapping furnishing status to numeric values
-#     furnishingstatus_map = {'furnished': 0, 'semi-furnished': 2, 'unfurnished': 2}
-#     furnishingstatus = furnishingstatus_map.get(furnishingstatus.lower(), -1)  # Default value if not found
+    def binary_spot_search(value, dict):
+        found = False
+        unchange = dict
+        while not found:
+            length = len(dict)
+            pos = length//2
+            middle = dict[pos]
+            if value[1] == middle[1]:
+                found = True
+                return unchange.index(middle)
+            elif value[1] > dict[-1][1]:
+                temp = dict[-1]
+                temp1 = unchange.index(temp)
+                found = True
+                return temp1+1
+            elif value[1] < dict[0][1]:
+                found = True
+                return 0
+            elif middle[1] < value[1]:
+                if len(dict) == 1:
+                    found = True
+                    return unchange.index(dict[0])
+                dict = dict[pos:]
+            elif value[1] < middle[1]:
+                if len(dict) == 1:
+                    found = True
+                    return unchange.index(dict[0])+1
+                dict = dict[:pos]
 
-#     if furnishingstatus == -1:
-#         print("Invalid furnishing status. Please enter 'furnished', 'semi-furnished', or 'unfurnished'.")
-#     else:
-#         # Predicting the price
-#         predicted_price = regressor.predict([[area, bedrooms, bathrooms, stories, mainroad, guestroom, basement, hotwaterheating, airconditioning, parking, prefarea, furnishingstatus]])[0]
-#         return jsonify(predicted_price)
+    def listflip(list1):
+        list2 = []
+        for i in range(len(list1)):
+            list2.append(list1[-1*(i+1)])
+        return list2
+    returnlist = []
+    def end(dict):
+        dict1 = listflip(dict)
+        for i in range(len(dict1)):
+            returnlist.append([[dict1[i][0]], [dict1[i][1]]])
+
+    sortfunc()
+    return json.dumps(returnlist)
+
+
 @app.before_request
 def before_request():
     # Check if the request came from a specific origin
